@@ -1,6 +1,11 @@
 import requests
 from transformers import pipeline
 from langchain_core.runnables import Runnable, RunnableSequence, RunnableLambda
+import warnings
+
+# Suppress warnings
+warnings.filterwarnings('ignore', category=FutureWarning)
+warnings.filterwarnings('ignore', category=UserWarning)
 
 # Function to fetch a summary from Wikipedia
 def fetch_wikipedia_summary(query):
@@ -30,8 +35,8 @@ def generate_text(input_text):
 
 # Function to generate a headline using a summarization model
 def generate_headline(input_text):
-    summarizer = pipeline('summarization')
-    result = summarizer(f"Generate a headline for this summary: {input_text}", max_length=10, min_length=5, do_sample=False)
+    summarizer = pipeline('summarization', model='sshleifer/distilbart-cnn-12-6')
+    result = summarizer(f"Create a headline for this article summary: {input_text}", max_length=10, min_length=5, do_sample=False, truncation=True)
     return result[0]['summary_text']
 
 # Custom Runnable components
@@ -72,8 +77,7 @@ def create_newspaper_article(query):
     results = sequence.invoke(inputs)
     return results
 
-# Example usage
-query = "Mercedes Benz"
+query = input("Enter a topic here to generate the article : ")
 result = create_newspaper_article(query)
 print("Headline:", result['headline'])
 print("Article:", result['article'])
